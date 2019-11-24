@@ -41,6 +41,17 @@ class User
         return false;
     }
 
+    function validate() {
+        if (empty($this->email)) return "Mail nie może być pusty!";
+        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) return "Niepoprawny adres mailowy!";
+
+        if (empty($this->password)) return "Hasło nie może być puste!";
+        if (strlen($this->password) < 5) return "Hasło nie może być krótsze niż 5 znaków!";
+        if (strlen($this->password) > 8190) return "Hasło nie może być dłuższe niż 255 znaków!";
+
+        return null;
+    }
+
     function saveNewToken($id, $email) {
         $query = "UPDATE " . $this->table_name . " SET token=:token";
         $stmt = $this->conn->prepare($query);
