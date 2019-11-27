@@ -7,8 +7,8 @@ $database = new Database();
 $db = $database->getConnection();
 
 $user = new User($db);
-$user->email = isset($_GET['username']) ? $_GET['username'] : die();
-$user->password = isset($_GET['password']) ? $_GET['password'] : die();
+$user->email = $_POST['username'];
+$user->password = $_POST['password'];
 
 $token = $user->login();
 if ($token != null) {

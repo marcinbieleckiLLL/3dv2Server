@@ -1,6 +1,8 @@
 <?php
 
-$token = isset($_GET['token']) ? $_GET['token'] : die();
+include_once '../models/JwtToken.php';
+
+$token = $_POST['token'];
 
 if (JwtToken::isCorrect($token)) {
     header("Content-type:application/pdf");
