@@ -1,5 +1,6 @@
 <?php
 
+include_once '../models/JwtToken.php';
 
 class User
 {
@@ -21,7 +22,7 @@ class User
             return false;
         }
 
-        $query = "INSERT INTO" . $this->table_name . " SET email=:email, password=:password, created=:created";
+        $query = "INSERT INTO " . $this->table_name . " SET email=:email, password=:password, created=:created";
 
         $stmt = $this->conn->prepare($query);
 
@@ -33,21 +34,23 @@ class User
         $stmt->bindParam(":password", $this->password);
         $stmt->bindParam(":created", $this->created);
 
-        if($stmt->execute()){
+        if($stmt->execute()) {
             $this->id = $this->conn->lastInsertId();
             $this->saveNewToken($this->id, $this->email);
             return true;
+        } else {
+            print_r($stmt->errorInfo());
         }
         return false;
     }
 
     function validate() {
-        if (empty($this->email)) return "Mail nie może być pusty!";
-        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) return "Niepoprawny adres mailowy!";
+        if (empty($this->email)) return array("email", "Mail nie może być pusty!");
+        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) return array("email", "Niepoprawny adres mailowy!");
 
-        if (empty($this->password)) return "Hasło nie może być puste!";
-        if (strlen($this->password) < 5) return "Hasło nie może być krótsze niż 5 znaków!";
-        if (strlen($this->password) > 8190) return "Hasło nie może być dłuższe niż 255 znaków!";
+        if (empty($this->password)) return array("password", "Hasło nie może być puste!");
+        if (strlen($this->password) < 5) return array("password", "Hasło nie może być krótsze niż 5 znaków!");
+        if (strlen($this->password) > 8190) return array("password", "Hasło nie może być dłuższe niż 255 znaków!");
 
         return null;
     }
@@ -61,7 +64,7 @@ class User
     }
 
     function login() {
-        $query = "SELECT`id`, `username`, `password`, `created` FROM " . $this->table_name . " WHERE email='".$this->email."' AND password='".$this->password."'";
+        $query = "SELECT `id`, `username`, `password`, `created` FROM " . $this->table_name . " WHERE email='".$this->email."' AND password='".$this->password."'";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         if ($stmt->rowCount() > 0) {
@@ -73,9 +76,9 @@ class User
     }
 
     function isAlreadyExist() {
-        $query = "SELECT * FROM" . $this->table_name . " WHERE username='".$this->email."'";
+        $query = "SELECT * FROM " . $this->table_name . " WHERE email='".$this->email."'";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
-        return $stmt->rowCount() == 0;
+        return $stmt->rowCount() != 0;
     }
 }

@@ -7,7 +7,7 @@ $database = new Database();
 $db = $database->getConnection();
 
 $user = new User($db);
-$user->email = $_POST['username'];
+$user->email = $_POST['email'];
 $user->password = $_POST['password'];
 
 $token = $user->login();
