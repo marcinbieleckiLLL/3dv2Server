@@ -2,16 +2,16 @@
 
 include_once '../models/JwtToken.php';
 
-$token = $_POST['token'];
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST');
+header("Access-Control-Allow-Headers: X-Requested-With, Content-Type");
+
+$body = json_decode(file_get_contents('php://input'), true);
+$token = $body['token'];
+
+header("Content-type:application/pdf");
+header("Content-Disposition:attachment;filename='downloaded.pdf'");
 
 if (JwtToken::isCorrect($token)) {
-    header("Content-type:application/pdf");
-    header("Content-Disposition:attachment;filename='downloaded.pdf'");
     readfile("../catalog.pdf");
-} else {
-    $arr = array(
-        "status" => false,
-        "message" => "Błędny login lub hasło",
-    );
-    echo json_encode($arr);
 }

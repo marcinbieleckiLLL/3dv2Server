@@ -21,7 +21,7 @@ class Contact
     }
 
     function create() {
-        $query = "INSERT INTO" . $this->table_name . " SET person_name=:person_name, company_name=:company_name, nip=:nip, email=:email, topic=:topic, message=:message, created=:created";
+        $query = "INSERT INTO " . $this->table_name . " SET person_name=:person_name, company_name=:company_name, nip=:nip, email=:email, topic=:topic, message=:message, created=:created";
         $stmt = $this->conn->prepare($query);
 
         $this->person_name=htmlspecialchars(strip_tags($this->person_name));
@@ -40,21 +40,23 @@ class Contact
         $stmt->bindParam(":message", $this->message);
         $stmt->bindParam(":created", $this->created);
 
-        $stmt->execute();
+        if(!$stmt->execute()) {
+            print_r($stmt->errorInfo());
+        }
     }
 
     function validate() {
-        if (empty($this->email)) return "Mail nie może być pusty!";
-        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) return "Niepoprawny adres mailowy!";
+        if (empty($this->email)) return array("email", "Mail nie może być pusty!");
+        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) return array("email", "Niepoprawny adres mailowy!");
 
-        if (!empty($this->person_name) && strlen($this->person_name) > 255) return "Imię i nazwisko nie może być dłuższe niż 255 znaków!";
-        if (!empty($this->company_name) && strlen($this->company_name) > 255) return "Nazwa frimy nie może być dłuższa niż 255 znaków!";
-        if (!empty($this->nip) && strlen($this->nip) > 255) return "Numer Nip nie może być dłuższy niż 255 znaków!";
-        if (!empty($this->topic) && strlen($this->topic) > 255) return "Temat nie może być dłuższy niż 255 znaków!";
+        if (!empty($this->person_name) && strlen($this->person_name) > 255) return array("person_name", "Imię i nazwisko nie może być dłuższe niż 255 znaków!");
+        if (!empty($this->company_name) && strlen($this->company_name) > 255) return array("company_name", "Nazwa frimy nie może być dłuższa niż 255 znaków!");
+        if (!empty($this->nip) && strlen($this->nip) > 255) return array("nip", "Numer Nip nie może być dłuższy niż 255 znaków!");
+        if (!empty($this->topic) && strlen($this->topic) > 255) return array("topic", "Temat nie może być dłuższy niż 255 znaków!");
 
-        if (empty($this->message)) return "Wiadomość nie może być pusta!";
-        if (strlen($this->message) < 5) return "Wiadomość nie może być krótsza niż 5 znaków!";
-        if (strlen($this->message) > 8190) return "Wiadomość nie może być dłuższa niż 8190 znaków!";
+        if (empty($this->message)) return array("message", "Wiadomość nie może być pusta!");
+        if (strlen($this->message) < 5) return array("message", "Wiadomość nie może być krótsza niż 5 znaków!");
+        if (strlen($this->message) > 8190) return array("message", "Wiadomość nie może być dłuższa niż 8190 znaków!");
 
         return null;
     }
