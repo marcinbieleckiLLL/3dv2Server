@@ -1,10 +1,12 @@
 <?php
 
 include_once '../models/JwtToken.php';
+include_once '../models/EmailSender.php';
 
 class User
 {
     private $conn;
+    private $emailSender;
     private $table_name = "users";
 
     public $id;
@@ -17,6 +19,7 @@ class User
 
     public function __construct($db){
         $this->conn = $db;
+        $this->emailSender = new EmailSender();
     }
 
     function signup(){
@@ -43,6 +46,8 @@ class User
         if($stmt->execute()) {
             $this->id = $this->conn->lastInsertId();
             $this->saveNewToken($this->id, $this->email);
+            $this->emailSender->send(EmailComposer::createForRegistration($this));
+            $this->emailSender->send(EmailComposer::createForRegistrationInnerMessage($this));
             return true;
         } else {
             print_r($stmt->errorInfo());

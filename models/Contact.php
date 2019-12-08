@@ -1,11 +1,13 @@
 <?php
 
+include_once '../models/EmailSender.php';
 
 class Contact
 {
 
     private $conn;
     private $table_name = "contact";
+    private $emailSender;
 
     public $id;
     public $person_name;
@@ -40,7 +42,9 @@ class Contact
         $stmt->bindParam(":message", $this->message);
         $stmt->bindParam(":created", $this->created);
 
-        if(!$stmt->execute()) {
+        if($stmt->execute()) {
+            $this->emailSender->send(EmailComposer::createForContact($this));
+        } else {
             print_r($stmt->errorInfo());
         }
     }
