@@ -17,6 +17,7 @@ $user->nip = $body['nip'];
 $user->company_name = $body['company_name'];
 $user->email = $body['email'];
 $user->password = $body['password'];
+$user->regulations = $body['regulations'];
 $user->created = date('Y-m-d H:i:s');
 
 

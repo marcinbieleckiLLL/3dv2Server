@@ -16,6 +16,7 @@ class User
     public $password;
     public $created;
     public $token;
+    public $regulations;
 
     public function __construct($db){
         $this->conn = $db;
@@ -37,10 +38,12 @@ class User
         $this->password=htmlspecialchars(strip_tags($this->password));
         $this->created=htmlspecialchars(strip_tags($this->created));
 
+        $passHash = password_hash($this->password, PASSWORD_DEFAULT);
+
         $stmt->bindParam(":company_name", $this->company_name);
         $stmt->bindParam(":nip", $this->nip);
         $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":password", password_hash($this->password, PASSWORD_DEFAULT));
+        $stmt->bindParam(":password", $passHash);
         $stmt->bindParam(":created", $this->created);
 
         if($stmt->execute()) {
@@ -57,7 +60,9 @@ class User
 
 
     function validate() {
-        if (empty($this->company_name)) return array("company_name", "Nazwa frimy nie może być pusta!");
+        if (empty($this->regulations) || $this->regulations != true) return array("regulations", "Akceptacja regulaminu jest obowiązkowa!");
+
+        if (empty($this->company_name)) return array("company_name", "Nazwa firmy nie może być pusta!");
         if (strlen($this->company_name) < 5) return array("company_name", "Nazwa firmy nie może być krótsza niż 5 znaków!");
         if (strlen($this->company_name) > 255) return array("company_name", "Nazwa frimy nie może być dłuższa niż 255 znaków!");
 
